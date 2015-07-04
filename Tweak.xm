@@ -1,4 +1,4 @@
-#import <ColorLog.h>
+//#import <ColorLog.h>
 #import <UIKit/UIGestureRecognizerSubclass.h>
 
 // interfaces {{{
@@ -11,6 +11,7 @@
 
 @interface SBIcon : NSObject
 - (void)launchFromLocation:(int)location;
+- (void)launchFromLocation:(int)location context:(id)context; //iOS 8.3
 - (BOOL)isFolderIcon;// iOS 4+
 - (NSString *)applicationBundleID;
 - (SBApplication *)application;
@@ -121,7 +122,11 @@ static int swipeRightAppLocation;
         [[%c(SBIconController) sharedInstance] openFolder:((SBFolderIconView *)gesture.view).folderIcon.folder animated:YES];
     } else {
         SBIcon *targetIcon = [((SBFolderIconView *)gesture.view).folderIcon.folder iconAtIndexPath:[NSIndexPath indexPathForRow:targetAppLocation inSection:0]];
-        [targetIcon launchFromLocation:0];
+        if ([targetIcon respondsToSelector:@selector(launchFromLocation:)]) {
+            [targetIcon launchFromLocation:0];
+        } else if ([targetIcon respondsToSelector:@selector(launchFromLocation:context:)]) {
+            [targetIcon launchFromLocation:0 context:nil];
+        }
     }
     //[[%c(SBUIController) sharedInstance] activateApplicationAnimated:[targetIcon application]];
     //[[%c(SBUIController) sharedInstance] activateApplicationAnimatedFromIcon:[targetIcon application] fromLocation:0];
